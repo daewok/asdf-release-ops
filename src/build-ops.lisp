@@ -333,10 +333,13 @@ the image.")
   (:documentation
    "Create a runtime for the program."))
 
-(defmethod asdf:selfward-operation ((o program-runtime-op))
+(defmethod asdf:selfward-operation ((o static-program-runtime-op))
   (list (matching-variant-of o 'program-linkage-table-prelink-info-o-op)
         (matching-variant-of o 'program-foreign-library-list-op)
         'asdf:monolithic-lib-op))
+
+(defmethod asdf:selfward-operation ((o dynamic-program-runtime-op))
+  'asdf:monolithic-lib-op)
 
 (defmethod asdf:component-depends-on ((o program-runtime-op) (s asdf:system))
   (list* '(asdf:load-op "asdf-release-ops/cffi-toolchain")
@@ -405,13 +408,21 @@ the image.")
           ;; TODO: Add another GF to compute link flag for a single library?
           (list (uiop:strcat "-l" (subseq pkg-config-name 3)))))))
 
-(defmethod asdf:perform ((o program-runtime-op) (s asdf:system))
+(defmethod asdf:perform ((o static-program-runtime-op) (s asdf:system))
   (funcall (uiop:find-symbol* :link-lisp-executable :cffi-toolchain)
            (asdf:output-file o s)
            (append
             (asdf:output-files (matching-variant-of o 'program-linkage-table-prelink-info-o-op) s)
             (asdf:output-files 'asdf:monolithic-lib-op s)
             (runtime-linker-options o s))))
+
+(defmethod asdf:perform ((o dynamic-program-runtime-op) (s asdf:system))
+  (let ((input-files (asdf:output-files 'asdf:monolithic-lib-op s)))
+    (funcall (uiop:find-symbol* :link-lisp-executable :cffi-toolchain)
+             (asdf:output-file o s)
+             (when input-files
+               (funcall (uiop:find-symbol* :link-all-library :cffi-toolchain)
+                        (first input-files))))))
 
 
 (define-build-op program-static-image-op (asdf:selfward-operation)

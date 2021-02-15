@@ -34,12 +34,12 @@ systems in the program. These operations should be usable on any system.
 * Prerequisites
 
   The most useful build operations (=static-program-op= and
-  =dynamic-program-op=) require that SBCL is built with v2 of Eric Timmons's
-  patch to support static executables in SBCL (TODO: add link once published on
-  blog). Additionally, SBCL must be built with the =:sb-linkable-runtime= and
-  =:sb-prelink-linkage-table= features. These constraints may be relaxed in the
-  future for =dynamic-program-op=. Ideally, the SBCL patches will be eventually
-  be merged upstream.
+  =dynamic-program-op=) require that SBCL is built with the
+  =:sb-linkable-runtime= feature. Additionally, the static variants require
+  that SBCL is built with v2 of Eric Timmons's patch to support static
+  executables in SBCL (TODO: add link once published on blog) and the
+  =:sb-prelink-linkage-table= feature (added by the patch). Ideally, the SBCL
+  patches will be eventually be merged upstream.
 
 * Quickstart
 
