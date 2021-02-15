@@ -369,7 +369,7 @@ the image.")
                           :error-output :interactive)
       (declare (ignore err-out))
       (if (zerop code)
-          (uiop:split-string out)
+          (remove "" (uiop:split-string out) :test #'equal)
           ;; Just hope for the best...
           (list (uiop:strcat "-l:" pkg-config-name ".a"))))))
 
@@ -399,7 +399,7 @@ the image.")
                           :error-output :interactive)
       (declare (ignore err-out))
       (if (zerop code)
-          (uiop:split-string out)
+          (remove "" (uiop:split-string out) :test #'equal)
           ;; Just hope for the best...
           ;;
           ;; TODO: Add another GF to compute link flag for a single library?
