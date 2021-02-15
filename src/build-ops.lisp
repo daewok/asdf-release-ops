@@ -504,9 +504,17 @@ runtime."))
          (call-next-method)))
 
 (defmethod asdf:output-files ((o program-op) (s asdf:system))
-  (list (uiop:subpathname (build-op-output-directory-pathname o s)
-                          (asdf:coerce-name s)
-                          :type (asdf::bundle-pathname-type :program))))
+  (let* ((build-op-p (eq (class-of o) (asdf::coerce-class (asdf::component-build-operation s)
+                                                          :package :asdf/interface
+                                                          :super 'asdf:operation
+                                                          :error nil)))
+         (build-pathname (when build-op-p (asdf::component-build-pathname s))))
+    (values
+     (list (or build-pathname
+               (uiop:subpathname (build-op-output-directory-pathname o s)
+                                 (asdf:coerce-name s)
+                                 :type (asdf::bundle-pathname-type :program))))
+     build-op-p)))
 
 (defmethod asdf:perform ((o program-op) (s asdf:system))
   (let ((output-file (asdf:output-file o s))
