@@ -1,0 +1,190 @@
+#+TITLE: ASDF Release Ops
+
+**WARNING**: This system is alpha quality. If you use it, make sure to pin to a
+specific version because APIs are likely to change.
+
+**WARNING**: This system is developed on and used primarily with SBCL. Support
+for other implementations is desired, but likely won't come until the APIs
+stabilize a bit more and we build out a test suite.
+
+**WARNING**: This system requires a patched SBCL to work. A link to the patch
+will be posted once it (and this system) have undergone a bit more testing in
+my CI pipelines.
+
+This project aims to make it easy to release programs written in Common Lisp
+for consumption by end users. It automates the process of assembling an archive
+containing your program(s), documentation, manuals, licenses, etc. It does not
+(yet?) include the ability to package a release for easy install on a target
+operating system. For that, see [[https://gitlab.com/ralt/linux-packaging/][linux-packaging]].
+
+By default, a release consists of the following artifacts:
+
++ The executable program(s)
++ A readme
++ The license of the program
++ The licenses (or other required acknowledgments) of the dependencies bundled
+  within the release
+
+In addition to the release operations, this system provides other useful build
+operations. These operations perform useful tasks such as building programs in
+a separate Lisp instance so that the running Lisp isn't killed by the build
+process, gathering lists of foreign libraries, and gathering lists of ASDF
+systems in the program. These operations should be usable on any system.
+
+* Prerequisites
+
+  The most useful build operations (=static-program-op= and
+  =dynamic-program-op=) require that SBCL is built with v2 of Eric Timmons's
+  patch to support static executables in SBCL (TODO: add link once published on
+  blog). Additionally, SBCL must be built with the =:sb-linkable-runtime= and
+  =:sb-prelink-linkage-table= features. These constraints may be relaxed in the
+  future for =dynamic-program-op=. Ideally, the SBCL patches will be eventually
+  be merged upstream.
+
+* Quickstart
+
+  If you have a system that follows certain assumptions (discussed below), it
+  is trivial to incorporate this system. Simply add the following to your
+  system definition:
+
+  #+begin_src common-lisp
+    (defsystem :my-cool-system
+      ...
+      :defsystem-depends-on (#:asdf-release-ops)
+      :release-staging-directory "build/release-staging/"
+      :release-directory "releases/")
+  #+end_src
+
+  Then eval the following and you should see a release tarball made in the
+  releases/ folder.
+
+  #+begin_src common-lisp
+    (asdf:operate 'asdf-release-ops:static-release-archive-op :my-cool-system)
+  #+end_src
+
+** Assumptions
+
+   The following assumptions must be met for the quickstart example to work:
+
+   1. You must define an =:entrypoint= on your system.
+   2. You must define a =:version= on your system.
+   3. You must have a =README= file next to your ASD file with a type of NIL,
+      txt, md, or org.
+   4. You must have a =LICENSE=, =LICENCE=, or =COPYING= file next to your ASD
+      file with a type of NIL, txt, md, or org.
+   5. You must have a =BUNDLED-LICENSES=, =BUNDLED-LICENCES=, or
+      =BUNDLED-COPYING= file next to your ASD file with a type of NIL, txt, md,
+      or org.
+
+* Note on System Structure
+
+  In order to get the most use out of this system, it will most likely be
+  placed in another system's =:defsystem-depends-on= form. However, this system
+  has dependencies that users may not want to include in their programs (like
+  CFFI, osicat, zippy, etc.). Therefore, some operations depend on subsystems
+  of =asdf-release-ops= being loaded. This should happen automatically when
+  needed as those ops use =asdf:component-depends-on= to declare those
+  dependencies.
+
+* Build Ops
+
+  Each build op has two variants: =static= and =dynamic=. When a build op
+  depends on another build op, it will depend on the correct variant. The
+  variants need to be declared as separate classes because ASDF requires that
+  all operation objects are singletons. A future version will likely define an
+  API to easily define your own variants.
+
+  The static variants are ideal for producing a binary that Just Works on any
+  compatible OS (like many programs written in golang). All foreign libraries
+  must be statically linked into the executable and it is recommended to build
+  on a system with musl libc. Dynamic variants are ideal for targeting a
+  specific OS version. While foreign libraries can still be statically linked
+  into the program, most of the time they are just dynamically linked.
+
+  The following ops are exported by this system. You should not use the op
+  directly. Instead, always prefix it with the variant you want.
+
+  + =program-system-list-op= :: Creates a file describing all ASDF systems
+    loaded in the resulting program.
+  + =program-foreign-library-list-op= :: Creates a file containing a list of
+    all foreign libraries needed in the resulting program.
+  + =program-linkage-info-op= :: On SBCL, creates a file containing the Lisp
+    half of the linkage table info.
+  + =program-linkage-table-prelink-info-c-op= :: On SBCL creates a C file
+    containing the code to prelink the runtime half of the linkage table.
+  + =program-linkage-table-prelink-info-o-op= :: Compiles the result of
+    =program-linkage-table-prelink-info-c-op=.
+  + =program-image-op= :: Create an image with the program loaded.
+  + =perform-program-image-op= :: Actually performs the op described by
+    =program-image-op=. Do not invoke directly. =program-image-op= will run
+    this in a separate process.
+  + =program-runtime-op= :: Create a runtime for the program.
+  + =program-static-image-op= :: Redump the image produced by
+    =program-image-op=, but configured to not load dynamic libraries on
+    startup.
+  + =program-op= :: Produce a complete program using =program-static-image-op=
+    and =program-runtime-op=.
+
+* Release Ops
+
+  Just as build ops have two variants, release ops also have the same two
+  variants.
+
+  The following ops are exported by this system. You should not use the op
+  directly. Instead, always prefix it with the variant you want.
+
+  + =release-archive-op= :: Produce a tarball or zip (depending on OS)
+    containing the release.
+  + =release-stage-op= :: Copy all build or static artifacts to a folder for
+    subsequent archiving.
+
+* Release System
+
+  The following options can be set on the release system.
+
+  + =:release-structure= :: Define how a release archive should be structured
+    internally. This is a declarative description of the release structure,
+    similar to the =:components= key built into ASDF. More documentation will
+    be forthcoming in a later version.
+  + =:release-license-file= :: Specify a file to use for the license in the
+    release.
+  + =:release-readme-file= :: Specify a file to use for the readme in the
+    release.
+  + =:release-directory= :: Specify the directory where releases should be
+    placed.
+  + =:release-staging-directory= :: Specify the directory where releases should
+    be staged.
+
+* Differences from other systems
+
+** =cffi-toolchain=
+
+   [[https://github.com/cffi/cffi][cffi-toolchain]] can be used to create executables. However, its
+   =static-program-op= is misnamed IMO. It only statically links C code
+   produced by ASDF systems. It has no built in methods to statically link
+   system libraries, nor support for generating a static executable.
+
+   Additionally, cffi-toolchain does not attempt to deal with packaging issues.
+
+** =linux-packaging=
+
+   This system is probably most similar to [[https://gitlab.com/ralt/linux-packaging/][linux-packaging]]. linux-packaging
+   uses cffi-toolchain under the hood to build executables. However, instead of
+   packaging to Linux distribution agnostic tarballs, linux-packaging focuses
+   on using the distribution's native packaging format.
+
+   It would definitely be interesting to combine this system and
+   =linux-packaging=. And why not add Windows .msi generation and MacOS support
+   while we're at it?
+
+** =deploy=
+
+   [[https://github.com/Shinmera/deploy][deploy]] is a system very similar to this one. However, its answer to the
+   distribution agnositc packaging problem is to bundle all system foreign
+   libraries as shared objects that should be distributed with the
+   executable. It has no provisions for static executables.
+
+   Additionally, it does provide methods that can be used (abused?) to place
+   arbitrary files in specific places during the build. This is similar to this
+   system's concept of staging. However, this system is aiming for a more
+   declarative method of defining what is contained in a release.
