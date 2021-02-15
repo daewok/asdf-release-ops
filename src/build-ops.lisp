@@ -334,12 +334,14 @@ the image.")
    "Create a runtime for the program."))
 
 (defmethod asdf:selfward-operation ((o static-program-runtime-op))
-  (list (matching-variant-of o 'program-linkage-table-prelink-info-o-op)
+  (list 'asdf:load-op
+        (matching-variant-of o 'program-linkage-table-prelink-info-o-op)
         (matching-variant-of o 'program-foreign-library-list-op)
         'asdf:monolithic-lib-op))
 
 (defmethod asdf:selfward-operation ((o dynamic-program-runtime-op))
-  'asdf:monolithic-lib-op)
+  (list 'asdf:load-op
+        'asdf:monolithic-lib-op))
 
 (defmethod asdf:component-depends-on ((o program-runtime-op) (s asdf:system))
   (list* '(asdf:load-op "asdf-release-ops/cffi-toolchain")
