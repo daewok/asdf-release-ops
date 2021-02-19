@@ -35,7 +35,7 @@
   :license "BSD-2-Clause"
   :pathname "src/"
   :components ((:file "osicat"))
-  :depends-on (#:osicat
+  :depends-on ((:feature (:not :os-windows) #:osicat)
                #:asdf-release-ops))
 
 (defsystem #:asdf-release-ops/archive
