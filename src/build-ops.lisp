@@ -420,11 +420,17 @@ the image.")
 
 (defmethod asdf:perform ((o dynamic-program-runtime-op) (s asdf:system))
   (let ((input-files (asdf:output-files 'asdf:monolithic-lib-op s)))
-    (funcall (uiop:find-symbol* :link-lisp-executable :cffi-toolchain)
-             (asdf:output-file o s)
-             (when input-files
-               (funcall (uiop:find-symbol* :link-all-library :cffi-toolchain)
-                        (first input-files))))))
+    (if (uiop:os-windows-p)
+        ;; CFFI has a long standing issue where flags such as -Wl,mswin64.def
+        ;; do not get normalized. Try to make this work even in the face of
+        ;; that bug by changing the current working directory.
+        (uiop:with-current-directory ((uiop:lisp-implementation-directory))
+          #1=(funcall (uiop:find-symbol* :link-lisp-executable :cffi-toolchain)
+                      (asdf:output-file o s)
+                      (when input-files
+                        (funcall (uiop:find-symbol* :link-all-library :cffi-toolchain)
+                                 (first input-files)))))
+        #1#)))
 
 
 (define-build-op program-static-image-op (asdf:selfward-operation)
