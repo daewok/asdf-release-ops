@@ -17,7 +17,8 @@
     (uiop:with-staging-pathname (output-pn)
       (ecase (release-archive-type o s)
         (:zip
-         (org.shirakumo.zippy:compress-zip staging-directory output-pn))
+         (org.shirakumo.zippy:compress-zip staging-directory output-pn
+                                           :if-exists :supersede))
         (:tar.gz
          ;; Ugh. Does there really not exist a compressing stream interface to
          ;; salza2 like chipz has??
@@ -29,4 +30,4 @@
                                     :element-type '(unsigned-byte 8))
            (archive::create-tar-file stream input-files)
            :close
-           (salza2:gzip-file tar-pn output-pn)))))))
+           (salza2:gzip-file tar-pn output-pn :if-exists :supersede)))))))
