@@ -57,7 +57,8 @@
            #:dynamic-program-system-list-op
            #:static-program-system-list-op
 
-           #:program-image-features)
+           #:program-image-features
+           #:program-static-image-features)
 
   ;; release-ops
   (:export #:release-archive-op

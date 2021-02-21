@@ -440,6 +440,13 @@ the image.")
 *not* try and load foreign libs that have been statically linked into the
 runtime."))
 
+(defgeneric program-static-image-features (o s)
+  (:documentation
+   "Return a list of features that should be pushed before saving the static
+image.")
+  (:method (o s)
+    nil))
+
 (defmethod asdf:selfward-operation ((o program-static-image-op))
   (matching-variant-of o 'program-image-op))
 
@@ -454,10 +461,13 @@ runtime."))
 
 (defmethod asdf:perform ((o static-program-static-image-op) (s asdf:system))
   (let ((name (asdf:coerce-name s))
-        (core-output (asdf:output-file o s)))
+        (core-output (asdf:output-file o s))
+        (features (program-static-image-features o s)))
     (uiop:with-staging-pathname (core-output)
       (eval-in-lisp
        (list
+        `(dolist (variable ',features)
+          (pushnew variable *features*))
         '(dolist (lib sb-alien::*shared-objects*)
           (setf (sb-alien::shared-object-dont-save lib) t))
         ;; Override methods
