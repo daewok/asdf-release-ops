@@ -105,7 +105,13 @@
 (defun os-arch-tuple ()
   "Return a string of the form $OS-$ARCH."
   (concatenate 'string
-               (string-downcase (uiop:operating-system))
+               (ecase (uiop:operating-system)
+                 (:linux
+                  "linux")
+                 (:macosx
+                  "darwin")
+                 (:win
+                  "windows"))
                "-"
                #+x86-64 "amd64"
                #+x86 "x86"
