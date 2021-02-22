@@ -62,7 +62,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
                                          #'string<)
               :collect (list asdf:system
                              :license (asdf:system-licence (asdf:find-system asdf:system))
-                             :version (asdf:system-version (asdf:find-system asdf:system))))
+                             :version (asdf:component-version (asdf:find-system asdf:system))))
             stream)))
        :image-path (first (asdf:input-files o s))))))
 

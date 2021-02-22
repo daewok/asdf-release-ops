@@ -96,7 +96,7 @@
                   (asdf:component-name mod))))
     (uiop:parse-unix-namestring
      (if (release-module-append-version mod)
-         (uiop:strcat base "-" (asdf:system-version (asdf:component-system mod)))
+         (uiop:strcat base "-" (asdf:component-version (asdf:component-system mod)))
          base)
      :want-relative t
      :type :directory
@@ -120,7 +120,7 @@
 
 (defgeneric release-system-version-designator (s)
   (:method ((s asdf:system))
-    (asdf:system-version s)))
+    (asdf:component-version s)))
 
 (defgeneric release-system-staging-directory (key s)
   (:method (key (s release-system))
