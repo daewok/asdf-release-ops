@@ -132,7 +132,11 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
   (let ((output-file (asdf:output-file o s)))
     (uiop:with-staging-pathname (output-file)
       (eval-in-lisp
-       `((with-open-file (stream ,output-file
+       (list
+        `(progn
+           (asdf:initialize-source-registry '(:source-registry :ignore-inherited-configuration))
+           (asdf:initialize-output-translations ',asdf:*output-translations-parameter*))
+        `(with-open-file (stream ,output-file
                                  :direction :output
                                  :if-exists :supersede)
            (prin1
@@ -466,6 +470,9 @@ image.")
     (uiop:with-staging-pathname (core-output)
       (eval-in-lisp
        (list
+        `(progn
+           (asdf:initialize-source-registry '(:source-registry :ignore-inherited-configuration))
+           (asdf:initialize-output-translations ',asdf:*output-translations-parameter*))
         `(dolist (variable ',features)
           (pushnew variable *features*))
         '(dolist (lib sb-alien::*shared-objects*)
@@ -489,6 +496,9 @@ image.")
     (uiop:with-staging-pathname (core-output)
       (eval-in-lisp
        (list
+        `(progn
+           (asdf:initialize-source-registry '(:source-registry :ignore-inherited-configuration))
+           (asdf:initialize-output-translations ',asdf:*output-translations-parameter*))
         `(dolist (lib sb-alien::*shared-objects*)
           (when (member (sb-alien::shared-object-pathname lib) ',internal-libraries
                         :test #'equal)
@@ -538,6 +548,9 @@ image.")
     (uiop:with-staging-pathname (output-file)
       (eval-in-lisp
        `((progn
+           (asdf:initialize-source-registry '(:source-registry :ignore-inherited-configuration))
+           (asdf:initialize-output-translations ',asdf:*output-translations-parameter*))
+          (progn
            (defmethod asdf:output-files ((o asdf:program-op)
                                          (asdf:system (eql (asdf:find-system ,system))))
              (values (list ,output-file) t))
