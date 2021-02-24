@@ -56,7 +56,7 @@ RUN set -x \
          amd64) CLPM_ARCH=amd64;; \
          *) echo "Unknown arch" >&2; exit 1;; \
     esac \
-    && curl -fsSL https://files.clpm.dev/clpm/clpm-$CLPM_VERSION-linux-$CLPM_ARCH.tar.gz | tar xf - \
+    && curl -fsSL https://files.clpm.dev/clpm/clpm-$CLPM_VERSION-linux-$CLPM_ARCH.tar.gz | tar xzf - \
     && cd clpm-$CLPM_VERSION-linux-$CLPM_ARCH \
     && sh ./install.sh \
     && cd .. \
