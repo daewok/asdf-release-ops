@@ -1,0 +1,5 @@
+This project is used to demonstrate the asdf-release-ops project.
+
+WARNING: Do not distribute a static executable of this program that is linked
+against glibc without modifying the BUNDLED-LICENSES file to include its
+license.

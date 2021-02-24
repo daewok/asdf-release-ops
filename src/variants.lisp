@@ -55,7 +55,7 @@ the name of the static variant, the third is the name of the dynamic variant.")
        (defmethod op-variant-key ((op ,static-name))
          "static")
 
-       (defclass ,dynamic-name (dynamic-build-abstract-op ,op-name)
+       (defclass ,dynamic-name (dynamic-abstract-op ,op-name)
          ()
          (:documentation
           ,(uiop:strcat "Dynamic variant of " (string op-name) ".")))

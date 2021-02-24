@@ -45,7 +45,11 @@
    (release-staging-directory
     :initform nil
     :initarg :release-staging-directory
-    :reader release-system-release-staging-directory))
+    :reader release-system-release-staging-directory)
+   (release-program-file-name
+    :initform nil
+    :initarg :release-program-file-name
+    :reader release-system-release-program-file-name))
   (:documentation
    "A system class for seamlessly using ASDF release ops."))
 (defclass release-system-inferred-system (release-system asdf:package-inferred-system)
@@ -59,7 +63,8 @@
   (setf (slot-value system slot-name)
         `((:module "bin"
            :components
-           ((:program-file ,(asdf:primary-system-name system))))
+           ((:program-file ,(or (release-system-release-program-file-name system)
+                                (asdf:primary-system-name system)))))
           (:module "share"
            :components
            ( ;; (:man-directory "man")

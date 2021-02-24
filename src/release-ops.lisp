@@ -28,19 +28,17 @@ release module."))
 (defmethod asdf:component-depends-on ((o release-archive-op) (s asdf:system))
   ;; There *seems* to be a bug that produces these warnings when S
   ;; :defsystem-depends-on a package-inferred-system.
-  (handler-bind ((asdf/plan::dependency-not-done
-                   #'muffle-warning))
-    `((asdf:load-op ,(asdf:find-system "asdf-release-ops/archive"))
-      ,@(mapcar (lambda (action)
-                  (cons (car action) (list (cdr action))))
-                (asdf/plan::collect-dependencies (asdf:make-operation
-                                                  (matching-variant-of o 'release-stage-op))
-                                                 s
-                                                 :other-systems nil
-                                                 :component-type t
-                                                 :keep-component t
-                                                 :keep-operation (matching-variant-of o 'release-stage-op)))
-      ,@(call-next-method))))
+  `((asdf:load-op ,(asdf:find-system "asdf-release-ops/archive"))
+    ,@(mapcar (lambda (action)
+                (cons (car action) (list (cdr action))))
+              (asdf/plan::collect-dependencies (asdf:make-operation
+                                                (matching-variant-of o 'release-stage-op))
+                                               s
+                                               :other-systems nil
+                                               :component-type t
+                                               :keep-component t
+                                               :keep-operation (matching-variant-of o 'release-stage-op)))
+    ,@(call-next-method)))
 
 (defmethod asdf:input-files ((o release-archive-op) (s asdf:system))
   (remove-duplicates (asdf/bundle:direct-dependency-files o s :key 'asdf:output-files)
@@ -114,17 +112,25 @@ release actions.")
           (dolist (name '("LICENSE" "LICENSE.md" "LICENSE.org" "LICENSE.txt"
                           "LICENCE" "LICENCE.md" "LICENCE.org" "LICENCE.txt"
                           "COPYING" "COPYING.md" "COPYING.org" "COPYING.txt"))
-            (let ((pn (asdf:system-relative-pathname system name)))
-              (when (probe-file pn)
-                (return (list pn))))))))
+            (let ((pn-1 (uiop:subpathname (asdf:component-pathname system)
+                                          name))
+                  (pn-2 (asdf:system-relative-pathname system name)))
+              (when (probe-file pn-1)
+                (return (list pn-1)))
+              (when (probe-file pn-2)
+                (return (list pn-2))))))))
   (:method (o (c release-dependencies-license-file))
     (let ((system (asdf:component-system c)))
       (dolist (name '("BUNDLED-LICENSES" "BUNDLED-LICENSES.md" "BUNDLED-LICENSES.org" "BUNDLED-LICENSES.txt"
                       "BUNDLED-LICENCES" "BUNDLED-LICENCES.md" "BUNDLED-LICENCES.org" "BUNDLED-LICENCES.txt"
                       "BUNDLED-COPYING" "BUNDLED-COPYING.md" "BUNDLED-COPYING.org" "BUNDLED-COPYING.txt"))
-        (let ((pn (asdf:system-relative-pathname system name)))
-          (when (probe-file pn)
-            (return (list pn)))))))
+        (let ((pn-1 (uiop:subpathname (asdf:component-pathname system)
+                                          name))
+              (pn-2 (asdf:system-relative-pathname system name)))
+          (when (probe-file pn-1)
+            (return (list pn-1)))
+          (when (probe-file pn-2)
+            (return (list pn-2)))))))
   (:method (o (c release-readme-file))
     (let* ((system (asdf:component-system c))
            (system-readme (release-system-release-readme-file system)))
@@ -132,9 +138,13 @@ release actions.")
           (list (uiop:subpathname (asdf:component-pathname system)
                                   system-readme))
           (dolist (name '("README" "README.md" "README.org" "README.txt"))
-            (let ((pn (asdf:system-relative-pathname system name)))
-              (when (probe-file pn)
-                (return (list pn)))))))))
+            (let ((pn-1 (uiop:subpathname (asdf:component-pathname system)
+                                          name))
+                  (pn-2 (asdf:system-relative-pathname system name)))
+              (when (probe-file pn-1)
+                (return (list pn-1)))
+              (when (probe-file pn-2)
+                (return (list pn-2)))))))))
 
 (defmethod asdf:output-files ((o release-stage-op) (c release-file))
   (values (list (asdf:component-pathname c))
@@ -146,6 +156,9 @@ release actions.")
         (asdf:output-files (car build-action) (cdr build-action))
         (or (release-op-default-files o c)
             (error "No files provided and one could not be found automatically.")))))
+
+(defmethod asdf:perform ((o release-stage-op) (c asdf:source-file))
+  nil)
 
 (defmethod asdf:perform ((o release-stage-op) (c release-file))
   (let ((input-files (asdf:input-files o c))

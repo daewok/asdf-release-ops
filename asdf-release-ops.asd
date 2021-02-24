@@ -18,7 +18,11 @@
                                                "lisp-invocation"))
                (:file "release-ops" :depends-on ("package"
                                                  "variants"))
-               (:file "lisp-invocation" :depends-on ("package"))))
+               (:file "lisp-invocation" :depends-on ("package")))
+  :in-order-to ((test-op (load-op :asdf-release-ops-test)))
+  :perform (test-op (o c)
+                    (or (funcall (uiop:find-symbol* :run! :fiveam) :asdf-release-ops)
+                        (error "Tests failed!"))))
 
 (defsystem #:asdf-release-ops/lisp-invocation
   :description "A helper system. Simply used to load lisp-invocation when needed."
