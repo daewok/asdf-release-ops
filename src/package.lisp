@@ -13,8 +13,8 @@
            #:release-system-readme-op
            #:release-system-program-op)
   ;; Base ops
-  (:export #:define-build-op
-           #:define-release-op
+  (:export #:define-op
+           #:define-op-variant
            #:matching-variant-of)
   ;; build-ops
   (:export #:perform-program-image-op

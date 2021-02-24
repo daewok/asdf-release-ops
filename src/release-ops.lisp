@@ -17,7 +17,7 @@ release module."))
   (list* (list (asdf:downward-operation o) (release-system-release-module o system))
          (call-next-method)))
 
-(define-release-op release-archive-op (asdf:selfward-operation)
+(define-op release-archive-op (asdf:selfward-operation)
   ()
   (:documentation
    "Create an archive for the release."))
@@ -70,7 +70,7 @@ release module."))
        (release-op-ignore-output-translations-p o s))))
 
 
-(define-release-op release-stage-op (downward-release-op)
+(define-op release-stage-op (downward-release-op)
   ()
   (:documentation
    "Stage all release objects into a folder in the hierarchy specified by the
@@ -89,16 +89,16 @@ release actions.")
     t))
 
 (defgeneric release-op-build-action (o c)
-  (:method ((o release-abstract-op) (c release-license-file))
+  (:method ((o abstract-op) (c release-license-file))
     (uiop:if-let ((op (release-system-license-op o (asdf:component-system c))))
       (cons op (asdf:component-system c))))
-  (:method ((o release-abstract-op) (c release-dependencies-license-file))
+  (:method ((o abstract-op) (c release-dependencies-license-file))
     (uiop:if-let ((op (release-system-dependencies-license-op o (asdf:component-system c))))
       (cons op (asdf:component-system c))))
-  (:method ((o release-abstract-op) (c release-readme-file))
+  (:method ((o abstract-op) (c release-readme-file))
     (uiop:if-let ((op (release-system-readme-op o (asdf:component-system c))))
       (cons op (asdf:component-system c))))
-  (:method ((o release-abstract-op) (c release-program-file))
+  (:method ((o abstract-op) (c release-program-file))
     (uiop:if-let ((op (release-system-program-op o (asdf:component-system c))))
       (cons op (asdf:component-system c)))))
 

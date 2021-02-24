@@ -10,20 +10,20 @@
 
 (defgeneric build-op-output-directory-pathname (o c))
 
-(defmethod build-op-output-directory-pathname ((o static-build-abstract-op) (c asdf:system))
+(defmethod build-op-output-directory-pathname ((o static-abstract-op) (c asdf:system))
   (uiop:subpathname (asdf:component-pathname c)
                     (uiop:strcat (asdf:coerce-name c)
                                  "--asdf-release-ops-static/")
                     :type :directory))
 
-(defmethod build-op-output-directory-pathname ((o dynamic-build-abstract-op) (c asdf:system))
+(defmethod build-op-output-directory-pathname ((o dynamic-abstract-op) (c asdf:system))
   (uiop:subpathname (asdf:component-pathname c)
                     (uiop:strcat (asdf:coerce-name c)
                                  "--asdf-release-ops-dynamic/")
                     :type :directory))
 
 
-(define-build-op program-system-list-op (asdf:selfward-operation)
+(define-op program-system-list-op (asdf:selfward-operation)
   ()
   (:documentation
    "Create a file describing all systems loaded in the program. The file
@@ -67,7 +67,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
        :image-path (first (asdf:input-files o s))))))
 
 
-(define-build-op program-foreign-library-list-op (asdf:selfward-operation)
+(define-op program-foreign-library-list-op (asdf:selfward-operation)
   ()
   (:documentation
    "Produce a file containing a list of pathnames of libraries required by the
@@ -103,7 +103,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
        :image-path (first (asdf:input-files o s))))))
 
 
-(define-build-op program-linkage-info-op (asdf:selfward-operation)
+(define-op program-linkage-info-op (asdf:selfward-operation)
   ()
   (:documentation
    "Produces a file containing the linkage info for the program. This file
@@ -151,7 +151,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
        :image-path (first (asdf:input-files o s))))))
 
 
-(define-build-op program-linkage-table-prelink-info-c-op (asdf:selfward-operation)
+(define-op program-linkage-table-prelink-info-c-op (asdf:selfward-operation)
   ()
   (:documentation
    "Produce a prelink info C file."))
@@ -209,7 +209,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
           (format stream "};~%"))))))
 
 
-(define-build-op program-linkage-table-prelink-info-o-op (asdf:selfward-operation)
+(define-op program-linkage-table-prelink-info-o-op (asdf:selfward-operation)
   ()
   (:documentation
    "Produce an object file containing the linkage table prelink info."))
@@ -233,7 +233,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
              output-file input-files (list "-Wno-builtin-declaration-mismatch"))))
 
 
-(define-build-op program-image-op (asdf:non-propagating-operation
+(define-op program-image-op (asdf:non-propagating-operation
                                    asdf:bundle-op)
   ()
   (:documentation
@@ -316,7 +316,7 @@ the image.")
         `(uiop:quit))))))
 
 
-(define-build-op perform-program-image-op (asdf:image-op)
+(define-op perform-program-image-op (asdf:image-op)
   ()
   (:documentation
    "Actually performs the operation described by PROGRAM-IMAGE-OP."))
@@ -332,7 +332,7 @@ the image.")
 
 
 ;; TODO: Add link-op?
-(define-build-op program-runtime-op (asdf:selfward-operation)
+(define-op program-runtime-op (asdf:selfward-operation)
   ()
   (:documentation
    "Create a runtime for the program."))
@@ -437,7 +437,7 @@ the image.")
         #1#)))
 
 
-(define-build-op program-static-image-op (asdf:selfward-operation)
+(define-op program-static-image-op (asdf:selfward-operation)
   ()
   (:documentation
    "Takes an image produced by PROGRAM-IMAGE-OP and redump it, configured to
@@ -516,7 +516,7 @@ image.")
        :image-path (asdf:output-file (matching-variant-of o 'program-image-op) s)))))
 
 
-(define-build-op program-op (asdf:selfward-operation)
+(define-op program-op (asdf:selfward-operation)
   ()
   (:documentation
    "Create a progam."))

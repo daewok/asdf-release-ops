@@ -75,7 +75,7 @@
   (:documentation
    "Return the RELEASE-MODULE corresponding to the given release op.")
   (:method (o (s release-system))
-    (let* ((key (release-op-key o))
+    (let* ((key (op-variant-key o))
            (module (gethash key (release-system-release-modules s)))
            (description (release-system-release-structure-description s)))
     (when (or (null module)
@@ -145,7 +145,7 @@
                         (uiop:strcat (asdf:primary-system-name s)
                                      "--asdf-release-ops-staging/"))))
       (merge-pathnames (uiop:parse-unix-namestring
-                        (uiop:strcat (release-op-key o)
+                        (uiop:strcat (op-variant-key o)
                                      "/"))
                        (uiop:ensure-directory-pathname
                         (uiop:parse-unix-namestring base-dir :type :directory))))))

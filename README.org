@@ -27,9 +27,10 @@ By default, a release consists of the following artifacts:
 
 In addition to the release operations, this system provides other useful build
 operations. These operations perform useful tasks such as building programs in
-a separate Lisp instance so that the running Lisp isn't killed by the build
-process, gathering lists of foreign libraries, and gathering lists of ASDF
-systems in the program. These operations should be usable on any system.
+a separate Lisp instance (so that it is clean and the running Lisp isn't killed
+by the build process), gathering lists of foreign libraries, and gathering
+lists of ASDF systems in the program. These operations should be usable on any
+ASDF system.
 
 * Prerequisites
 
@@ -86,19 +87,22 @@ systems in the program. These operations should be usable on any system.
   needed as those ops use =asdf:component-depends-on= to declare those
   dependencies.
 
+
+* Overall Ops Structure
+
+  Each op (operation) defined by this system has two variants: =static= and
+  =dynamic=. The variants exist as separate classes descending from the same
+  parent class because ASDF requires that all operation objects are
+  singletons. You can use the `define-op-variant` macro to further specialize
+  the operations (e.g. to build different variants of your program).
+
 * Build Ops
 
-  Each build op has two variants: =static= and =dynamic=. When a build op
-  depends on another build op, it will depend on the correct variant. The
-  variants need to be declared as separate classes because ASDF requires that
-  all operation objects are singletons. A future version will likely define an
-  API to easily define your own variants.
-
-  The static variants are ideal for producing a binary that Just Works on any
-  compatible OS (like many programs written in golang). All foreign libraries
-  must be statically linked into the executable and it is recommended to build
-  on a system with musl libc. Dynamic variants are ideal for targeting a
-  specific OS version. While foreign libraries can still be statically linked
+  The static build op variants are ideal for producing a binary that Just Works
+  on any compatible OS (like many programs written in golang). All foreign
+  libraries must be statically linked into the executable and it is recommended
+  to build on a system with musl libc. Dynamic variants are ideal for targeting
+  a specific OS version. While foreign libraries can still be statically linked
   into the program, most of the time they are just dynamically linked.
 
   The following ops are exported by this system. You should not use the op
@@ -126,9 +130,6 @@ systems in the program. These operations should be usable on any system.
     and =program-runtime-op=.
 
 * Release Ops
-
-  Just as build ops have two variants, release ops also have the same two
-  variants.
 
   The following ops are exported by this system. You should not use the op
   directly. Instead, always prefix it with the variant you want.
