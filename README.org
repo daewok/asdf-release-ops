@@ -11,6 +11,9 @@ stabilize a bit more and we build out a test suite.
 will be posted once it (and this system) have undergone a bit more testing in
 my CI pipelines.
 
+This project is mirrored between [[https://gitlab.com/daewok/asdf-release-ops][Gitlab]] and [[https://github.com/daewok/asdf-release-ops][Github]]. Issues and merge requests
+are preferred on Gitlab as that is where CI runs.
+
 This project aims to make it easy to release programs written in Common Lisp
 for consumption by end users. It automates the process of assembling an archive
 containing your program(s), documentation, manuals, licenses, etc. It does not
