@@ -94,7 +94,7 @@ debian-image:arm64:
     CLPM_CACHE_DIR: $CI_PROJECT_DIR/.gitlab-ci-cache/clpm/
   script:
     - clpm bundle install -y --no-resolve
-    - clpm bundle exec -- sbcl --disable-debugger --eval '(require :asdf)' --eval '(asdf:test-system :asdf-release-ops)'
+    - clpm bundle exec -- sbcl --non-interactive --eval '(require :asdf)' --eval '(asdf:test-system :asdf-release-ops)'
   cache:
     paths:
       - .gitlab-ci-cache/
