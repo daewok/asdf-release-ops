@@ -7,9 +7,8 @@ specific version because APIs are likely to change.
 for other implementations is desired, but likely won't come until the APIs
 stabilize a bit more and we build out a test suite.
 
-**WARNING**: This system requires a patched SBCL to work. A link to the patch
-will be posted once it (and this system) have undergone a bit more testing in
-my CI pipelines.
+**WARNING**: This system requires a patched SBCL to work. See the Prerequisites
+section.
 
 This project is mirrored between [[https://gitlab.com/daewok/asdf-release-ops][Gitlab]] and [[https://github.com/daewok/asdf-release-ops][Github]]. Issues and merge requests
 are preferred on Gitlab as that is where CI runs.
@@ -45,6 +44,9 @@ ASDF system.
   [[https://www.timmons.dev/posts/static-executables-with-sbcl-v2.html]]) and the
   =:sb-prelink-linkage-table= feature (added by the patch). Ideally, the SBCL
   patches will be eventually be merged upstream.
+
+  If you want static executables, you also need to have the static versions of
+  any foreign libraries installed as well as pkg-config.
 
 * Quickstart
 
