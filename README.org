@@ -73,7 +73,7 @@ ASDF system.
 
    The following assumptions must be met for the quickstart example to work:
 
-   1. You must define an =:entrypoint= on your system.
+   1. You must define an =:entry-point= on your system.
    2. You must define a =:version= on your system.
    3. You must have a =README= file next to your ASD file with a type of NIL,
       txt, md, or org.
