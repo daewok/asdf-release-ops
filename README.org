@@ -58,6 +58,7 @@ ASDF system.
     (defsystem :my-cool-system
       ...
       :defsystem-depends-on (#:asdf-release-ops)
+      :class "asdf-release-ops:release-system"
       :release-staging-directory "build/release-staging/"
       :release-directory "releases/")
   #+end_src
