@@ -41,7 +41,8 @@ ASDF system.
   =dynamic-program-op=) require that SBCL is built with the
   =:sb-linkable-runtime= feature. Additionally, the static variants require
   that SBCL is built with v2 of Eric Timmons's patch to support static
-  executables in SBCL (TODO: add link once published on blog) and the
+  executables in SBCL (see:
+  [[https://www.timmons.dev/posts/static-executables-with-sbcl-v2.html]]) and the
   =:sb-prelink-linkage-table= feature (added by the patch). Ideally, the SBCL
   patches will be eventually be merged upstream.
 
