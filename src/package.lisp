@@ -6,8 +6,8 @@
 (uiop:define-package #:asdf-release-ops
     (:use #:cl)
   ;; components
-  (:export #:release-system
-           #:release-system-inferred-system
+  (:export #:package-inferred-release-system
+           #:release-system
            #:release-system-license-op
            #:release-system-dependencies-license-op
            #:release-system-readme-op

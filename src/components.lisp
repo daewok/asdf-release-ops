@@ -3,22 +3,6 @@
 ;;;; This software is part of asdf-release-ops. See README.org for more
 ;;;; information. See LICENSE for license information.
 
-;; (uiop:define-package #:asdf-release-ops/components
-;;     (:use #:cl)
-;;   (:import-from #:asdf)
-;;   (:export #:release-dependencies-license-file
-;;            #:release-file
-;;            #:release-license-file
-;;            #:release-ops-system
-;;            #:release-ops-system-release-directory
-;;            #:release-ops-system-release-license-file
-;;            #:release-ops-system-release-module
-;;            #:release-ops-system-release-readme-file
-;;            #:release-ops-system-release-staging-directory
-;;            #:release-ops-package-inferred-system
-;;            #:release-program-file
-;;            #:release-readme-file))
-
 (in-package #:asdf-release-ops)
 
 (defclass release-system (asdf:system)
@@ -52,10 +36,10 @@
     :reader release-system-release-program-file-name))
   (:documentation
    "A system class for seamlessly using ASDF release ops."))
-(defclass release-system-inferred-system (release-system asdf:package-inferred-system)
+(defclass package-inferred-release-system (release-system asdf:package-inferred-system)
   ()
   (:documentation
-   "Combination of PACKAGE-INFERRED-SYSTEM and RELEASE-OPS-SYSTEM."))
+   "Combination of PACKAGE-INFERRED-SYSTEM and RELEASE-SYSTEM."))
 
 (defmethod slot-unbound (class
                          (system release-system)
