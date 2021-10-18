@@ -39,4 +39,4 @@ variables:
 
 .common:test:clci:
   before_script:
-    - apk add openssl-dev openssl-libs-static pkgconfig
+    - apk add openssl-dev openssl-libs-static pkgconfig curl
