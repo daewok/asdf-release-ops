@@ -5,17 +5,5 @@
  :type :ql-clpi
  :url "https://quicklisp.common-lisp-project-index.org/")
 
-;; Needed for https://github.com/osicat/osicat/pull/39
-(:github "osicat"
- :path "osicat/osicat"
- :branch "master"
- :systems ("osicat"))
-
-;; Needed for https://github.com/Shinmera/zippy/pull/1
-(:github "zippy"
- :path "Shinmera/zippy"
- :branch "master"
- :systems ("zippy"))
-
 (:asd "asdf-release-ops-test.asd")
 (:asd "asdf-release-ops.asd")
