@@ -23,7 +23,7 @@
           libname))))
 
 (defun internal-library-pathnames (o s)
-  (asdf::with-asdf-session (:override t)
+  (asdf::with-asdf-session (:override t :override-cache t)
     (let ((input-files (asdf:input-files (matching-variant-of o 'program-image-op) s)))
       (remove-if-not (lambda (pn)
                        (equal (pathname-type pn) (asdf/bundle:bundle-pathname-type :dll)))

@@ -92,13 +92,17 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
                           :type "sexp")))
 
 (defmethod asdf:perform ((o program-foreign-library-list-op) (s asdf:system))
-  (let ((output-file (asdf:output-file o s)))
+  (let ((output-file (asdf:output-file o s))
+        (internal-libraries (internal-library-pathnames o s)))
     (uiop:with-staging-pathname (output-file)
       (eval-in-lisp
        `((with-open-file (stream ,output-file
                                  :direction :output
                                  :if-exists :supersede)
-           (prin1 (mapcar #'sb-alien::shared-object-pathname sb-alien::*shared-objects*)
+           (prin1 (set-difference
+                   (mapcar #'sb-alien::shared-object-pathname sb-alien::*shared-objects*)
+                   ',internal-libraries
+                    :test #'equal)
                   stream)))
        :image-path (first (asdf:input-files o s))))))
 
@@ -234,7 +238,7 @@ appropriate variant of PERFORM-PROGRAM-IMAGE-OP is likely what you want."))
 
 
 (define-op program-image-op (asdf:non-propagating-operation
-                                   asdf:bundle-op)
+                             asdf:bundle-op)
   ()
   (:documentation
    "Create an image with the program loaded and ready to be run.
