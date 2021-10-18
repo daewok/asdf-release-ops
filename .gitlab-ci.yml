@@ -35,7 +35,7 @@ variables:
   CLCI_TEST_CMUCL: "no"
   CLCI_TEST_ECL: "no"
   CLCI_SBCL_IMAGE: "daewok/static-sbcl"
-  CLCI_SBCL_TAG: alpine3.14
+  CLCI_SBCL_TAG: 2.1.8-alpine3.14
 
 .common:test:clci:
   before_script:
