@@ -1,112 +1,42 @@
 include:
-  - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
-  - local: "/.gitlab-ci.versions.yml"
+  - project: 'clci/gitlab-ci'
+    ref: release/v2-dev
+    file:
+      - definitions.gitlab-ci.yml
+  - project: 'clci/gitlab-ci'
+    ref: release/v2-dev
+    file:
+      - test-pipeline.gitlab-ci.yml
+      - release-pipeline.gitlab-ci.yml
+    rules:
+      - if: '$PIPELINE_TYPE != "clpm-dep-update"'
+  - project: 'clci/gitlab-ci'
+    ref: release/v2-dev
+    file:
+      - clpm-dep-update-pipeline.gitlab-ci.yml
+    rules:
+      - if: '$PIPELINE_TYPE == "clpm-dep-update"'
 
-stages:
-  - prep
-  - build
-  - test
-
-##############################################################################
-# Build Docker images for CI
-##############################################################################
-
-.alpine-image:
-  stage: prep
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  variables:
-    GIT_SUBMODULE_STRATEGY: none
-  script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - |
-      /kaniko/executor --cache --cache-repo $CI_REGISTRY_IMAGE/kaniko \
-                       --context $CI_PROJECT_DIR \
-                       --build-arg sbcl_version=$SBCL_VERSION \
-                       --build-arg alpine_version=$ALPINE_VERSION \
-                       --build-arg clpm_version=$CLPM_VERSION \
-                       --dockerfile $CI_PROJECT_DIR/docker/Dockerfile.alpine-ci \
-                       --destination $CI_REGISTRY_IMAGE/ci:$SBCL_VERSION-alpine$ALPINE_VERSION-clpm$CLPM_VERSION-$ARCH
+# This section is not strictly required, but prevents Gitlab CI from launching
+# multiple redundent pipelines when a Merge Request is opened.
+workflow:
   rules:
-    - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($ARCH == "amd64" || ($ARCH == "arm" && $CI_LINUX_ARM64) || ($ARCH == "arm64" && $CI_LINUX_ARM64))'
-      changes:
-        - .gitlab-ci.versions.yml
-        - docker/Dockerfile.alpine-ci
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
 
-.debian-image:
-  stage: prep
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  variables:
-    GIT_SUBMODULE_STRATEGY: none
-  script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - |
-      /kaniko/executor --cache --cache-repo $CI_REGISTRY_IMAGE/kaniko \
-                       --context $CI_PROJECT_DIR \
-                       --build-arg sbcl_version=$SBCL_VERSION \
-                       --build-arg debian_version=$DEBIAN_VERSION \
-                       --build-arg clpm_version=$CLPM_VERSION \
-                       --customPlatform=linux/$ARCH \
-                       --dockerfile $CI_PROJECT_DIR/docker/Dockerfile.debian-ci \
-                       --destination $CI_REGISTRY_IMAGE/ci:$SBCL_VERSION-$DEBIAN_VERSION-clpm$CLPM_VERSION-$ARCH
-  rules:
-    - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($ARCH == "amd64" || ($ARCH == "arm" && $CI_LINUX_ARM64) || ($ARCH == "arm64" && $CI_LINUX_ARM64))'
-      changes:
-        - .gitlab-ci.versions.yml
-        - docker/Dockerfile.debian-ci
+variables:
+  CLCI_TEST_ABCL: "no"
+  CLCI_TEST_CCL: "no"
+  CLCI_TEST_CLASP: "no"
+  CLCI_TEST_CLISP: "no"
+  CLCI_TEST_CMUCL: "no"
+  CLCI_TEST_ECL: "no"
+  CLCI_SBCL_IMAGE: "daewok/static-sbcl"
+  CLCI_SBCL_TAG: 2.1.8-alpine3.14
 
-alpine-image:amd64:
-  extends: .alpine-image
-  variables:
-    ARCH: amd64
-
-alpine-image:arm64:
-  extends: .alpine-image
-  variables:
-    ARCH: arm64
-  tags:
-    - arm64
-
-debian-image:amd64:
-  extends: .debian-image
-  variables:
-    ARCH: amd64
-
-debian-image:arm64:
-  extends: .debian-image
-  variables:
-    ARCH: arm64
-  tags:
-    - arm64
-
-##############################################################################
-# Test
-##############################################################################
-
-.test:
-  stage: test
-  variables:
-    CLPM_CACHE_DIR: $CI_PROJECT_DIR/.gitlab-ci-cache/clpm/
-  script:
-    - clpm bundle install -y --no-resolve
-    - clpm bundle exec -- sbcl --non-interactive --eval '(require :asdf)' --eval '(asdf:test-system :asdf-release-ops)'
-  cache:
-    paths:
-      - .gitlab-ci-cache/
-  rules:
-    - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($ARCH == "amd64" || ($ARCH == "arm" && $CI_LINUX_ARM64) || ($ARCH == "arm64" && $CI_LINUX_ARM64))'
-
-
-.alpine-test:
-  extends: .test
-  image: $CI_REGISTRY_IMAGE/ci:$SBCL_VERSION-alpine$ALPINE_VERSION-clpm$CLPM_VERSION-$ARCH
-
-alpine-test:amd64:
-  extends: .alpine-test
-  variables:
-    ARCH: amd64
+.common:test:clci:
+  before_script:
+    - apk add openssl-dev openssl-libs-static pkgconfig curl make gcc musl-dev linux-headers zlib-dev zlib-static
