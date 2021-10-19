@@ -40,3 +40,6 @@ variables:
 .common:test:clci:
   before_script:
     - apk add openssl-dev openssl-libs-static pkgconfig curl make gcc musl-dev linux-headers zlib-dev zlib-static
+
+clpi:release:clci:
+  image: clfoundation/sbcl
