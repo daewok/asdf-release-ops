@@ -7,7 +7,7 @@
   :description "A set of ASDF operations useful for releasing code."
   :license "BSD-2-Clause"
   :pathname "src/"
-  :version "0.0.1"
+  :version (:read-file-form "version.lisp-expr")
   :components ((:file "package")
                (:file "variants" :depends-on ("package"))
                (:file "components" :depends-on ("package" "variants"))
@@ -27,16 +27,19 @@
 (defsystem #:asdf-release-ops/lisp-invocation
   :description "A helper system. Simply used to load lisp-invocation when needed."
   :license "BSD-2-Clause"
+  :version (:read-file-form "version.lisp-expr")
   :depends-on (#:lisp-invocation))
 
 (defsystem #:asdf-release-ops/cffi-toolchain
   :description "A helper system. Simply used to load cffi-toolchain when needed."
   :license "BSD-2-Clause"
+  :version (:read-file-form "version.lisp-expr")
   :depends-on (#:cffi-toolchain))
 
 (defsystem #:asdf-release-ops/osicat
   :description "A helper system. Simply used to load osicat when needed."
   :license "BSD-2-Clause"
+  :version (:read-file-form "version.lisp-expr")
   :pathname "src/"
   :components ((:file "osicat"))
   :depends-on ((:feature (:not :os-windows) #:osicat)
@@ -45,6 +48,7 @@
 (defsystem #:asdf-release-ops/archive
   :description "A helper system. Simply used to load archive related dependencies when needed."
   :license "BSD-2-Clause"
+  :version (:read-file-form "version.lisp-expr")
   :pathname "src/"
   :components ((:file "release-archive-op"))
   :depends-on (#:archive

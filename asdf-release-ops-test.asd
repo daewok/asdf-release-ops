@@ -8,7 +8,7 @@
 (defsystem #:asdf-release-ops-test
   :description "Test system for asdf-release-ops."
   :license "BSD-2-Clause"
-  :version "0.0.1"
+  :version (:read-file-form "version.lisp-expr")
   :pathname "test/"
   :serial t
   :components ((:file "package")
@@ -19,7 +19,7 @@
 (defsystem #:asdf-release-ops-test/lisp-curl
   :description "A test system that makes a curl-like executable (with far fewer options) using Drakma."
   :license "BSD-2-Clause"
-  :version "0.0.1"
+  :version (:read-file-form "version.lisp-expr")
   :entry-point "asdf-release-ops-test/lisp-curl::main"
   :defsystem-depends-on (#:asdf-release-ops)
   :class "asdf-release-ops:release-system"
