@@ -50,14 +50,14 @@ release module."))
         :zip
         :tar.gz)))
 
-(defmethod archive-base-name ((o release-archive-op) (s asdf:system))
+(defmethod archive-base-name ((s asdf:system))
   (asdf:primary-system-name s))
 
 (defmethod asdf:output-files ((o release-archive-op) (s asdf:system))
   (values
    (list (uiop:subpathname (release-op-release-directory o s)
                            (uiop:strcat
-                            (archive-base-name o s)
+                            (archive-base-name s)
                             "-"
                             (release-system-version-designator s)
                             "-"

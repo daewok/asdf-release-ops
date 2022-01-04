@@ -119,7 +119,7 @@
       (merge-pathnames (uiop:parse-unix-namestring
                         (uiop:strcat key
                                      "/"
-                                     (asdf:primary-system-name s)
+                                     (archive-base-name s)
                                      "-"
                                      (release-system-version-designator s)
                                      "-"
